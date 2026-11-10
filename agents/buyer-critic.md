@@ -12,6 +12,6 @@ Score 0–10 on each, then average:
 - Reply effort (10 = no reply needed to get value)
 - Lands: would I forward it to a peer?
 
-Also answer: Texada test (hyper-specific? grounded? non-obvious — could a competitor send it verbatim?), does it read as a pitch or a gift, does anything feel like surveillance or a threat, which single sentence would make me delete it.
+Also answer: Copy test (hyper-specific? grounded? non-obvious — could a competitor send it verbatim?), does it read as a pitch or a gift, does anything feel like surveillance or a threat, which single sentence would make me delete it.
 
 Thresholds: PQS ≥ 7.0, PVP ≥ 8.5. Below that, give the one rewrite that would move the score most. Be blunt.

@@ -23,4 +23,25 @@ Research the equivalents per country (company registry, tax/GST registry, licens
 ## Before trusting any dataset
 Open one actual file · confirm the join column exists · look up the publisher · check last-updated · one-state/one-region spot count vs the official portal (build only if ≥85–95% right) · note license (non-commercial = banned for client work).
 
+## The lineage schema (make it checkable)
+Every row you keep carries three fields, so a machine can verify it later:
+- `provenance_type` — `original` | `official_mirror` | `scrape_snapshot` | `derived` | `unknown`
+- `gtm_score` — 0–10, the ladder above as a number
+- `as_of` — **only a date the record itself states. Never inferred.** A plausible date is not a date.
+
+Only `original` and `official_mirror` may be asserted as fact. A scrape is a lead.
+
+## The survivor-count gate (cost, before you spend)
+Print the row count after every filter, and **measure the filter before you pay**:
+- free keyword prefilter → print survivors
+- if survivors > 100,000, the filter is broken — fix it, do not spend
+- calibrate per catalog, not globally: the same keywords that work on a company registry
+  can match a fifth of all academic abstracts on an archive. Make the match title-only there.
+- then the lineage filter (`score ≥ floor AND provenance IN (original, official_mirror)
+  AND as_of IS NOT NULL`) → print survivors again
+
+Run `python scripts/verify_sources.py rows.csv` to enforce all of this. It exits non-zero
+when a row has no score, no known provenance, an inferred date, or when the survivor
+count blows past the gate.
+
 Output: `work/sources.md` table: source, rung, join key, coverage, access path, cadence, cost, gotchas, dead-end flag.

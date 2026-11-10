@@ -50,6 +50,28 @@ Answer what you can from free sources and plain code. Use a paid tool only for t
 
 If a step needs jargon, rewrite the step. Short lines, real examples, one idea at a time.
 
+## 8. Prove the thing before you say it works
+
+A number that happened is not a cause. Before you claim a tactic works:
+
+- Put the control variable on the **outside**. Compare reps inside one lead source, then pool.
+- Test every candidate habit the same way, then let the data pick. Never decide the lever in advance.
+- Use the right statistics for small counts: Wilson intervals, a gap of ~2× standard error, and at least 20 leads per side.
+- **Publish the tie band.** If two things are inside the noise, refuse to rank them.
+- Read the maturity window from your own won deals, not from a default.
+
+`scripts/lever_test.py` does the arithmetic. `skills/lever-test/SKILL.md` is the procedure.
+
+## 9. Give away the result, sell the wiring
+
+A reader who gets the finding for free is convinced the work is real. What they cannot
+get for free is the wiring: the join keys, the exact URLs, the gotchas, the thresholds,
+the cost ledger. That is the paid tier, and it is the only thing it needs to sell.
+
+The free part is a complete result, never a teaser. One mid tier ("everything below
+the line on this post") and one annual tier (the software, with the tools named).
+See `skills/monetization-ladder/SKILL.md`.
+
 ---
 
 **Credit:** Jordan Crawford's writing on public-data GTM got me started. His free starter kit is here: https://github.com/SantaJordan/gtm-engineer-starter. This repo is my own system and my own words.
