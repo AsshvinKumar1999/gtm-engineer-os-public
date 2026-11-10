@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<title>Build Log 002</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1015; --panel: #151a22; --line: #262e3b;
+    --ink: #eef1f6; --muted: #8b95a7; --dim: #5d6678;
+    --input: #ffb547;   /* amber = raw input moving through the system */
+    --built: #3dd6c6;   /* teal  = things that were built */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  #stage {
+    position: relative; width: 1080px; height: 1350px; overflow: hidden;
+    background: radial-gradient(900px 700px at 50% 50%, #151b26 0%, var(--bg) 72%);
+    font-family: 'Space Grotesk', system-ui, sans-serif; color: var(--ink);
+  }
+  canvas { position: absolute; inset: 0; }
+  .kicker { position: absolute; left: 72px; top: 62px; font: 600 19px 'JetBrains Mono', monospace;
+            letter-spacing: .14em; color: var(--input); }
+  h1 { position: absolute; left: 72px; top: 98px; width: 960px; font-size: 66px; line-height: 1.02;
+       font-weight: 700; letter-spacing: -.025em; }
+  h1 em { font-style: normal; color: var(--input); }
+  h1 b { color: var(--built); font-weight: 700; }
+  .label { position: absolute; font: 500 16px 'JetBrains Mono', monospace; color: var(--muted);
+           letter-spacing: .08em; text-transform: uppercase; }
+  .counter { position: absolute; font: 600 16px 'JetBrains Mono', monospace; color: var(--ink);
+             letter-spacing: .08em; text-align: right; }
+  .counter span { color: var(--input); }
+  .stage-row { position: absolute; display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
+  .stage-row .n { font: 700 40px 'Space Grotesk', sans-serif; color: var(--ink); }
+  .stage-row .t { font: 500 13px 'JetBrains Mono', monospace; color: var(--muted);
+                  letter-spacing: .06em; text-transform: uppercase; }
+  .row1 { left: 96px; top: 300px; }
+  .row2 { left: 96px; top: 478px; }
+  .row3 { left: 96px; top: 660px; }
+  .row4 { left: 96px; top: 880px; }
+  .tile { position: absolute; width: 30px; height: 34px; border-radius: 4px;
+          border: 1px solid #3a4456; background: #1b222d; }
+  .tile::after { content: ""; position: absolute; left: 6px; right: 6px; top: 9px; height: 2px;
+                 background: #4a5568; box-shadow: 0 6px 0 #4a5568, 0 12px 0 #4a5568; }
+  /* two-line sheet */
+  .sheet { position: absolute; border-radius: 10px; border: 1px solid var(--line);
+           background: var(--panel); padding: 11px 13px; font: 600 14px 'JetBrains Mono', monospace;
+           color: var(--ink); flex-direction: column; align-items: flex-start; gap: 3px; }
+  .sheet i { width: 8px; height: 8px; border-radius: 50%; background: var(--built); flex: none; }
+  .sheet b { color: var(--built); font-weight: 600; }
+  .sheet u { text-decoration: none; color: var(--dim); font-weight: 400; font-size: 12px; }
+  .foot { position: absolute; left: 72px; right: 72px; top: 1236px; border-top: 1px solid var(--line);
+          padding-top: 22px; display: flex; justify-content: space-between; align-items: baseline; }
+  .foot .who { font-size: 24px; font-weight: 700; }
+  .foot .who span { color: var(--muted); font-weight: 500; font-size: 19px; margin-left: 10px; }
+  .foot .proof { font: 500 14px 'JetBrains Mono', monospace; color: var(--muted); text-align: right;
+                 line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="fx" width="1080" height="1350"></canvas>
+  <div class="kicker">BUILD LOG 002 · TWO PUBLIC SIGNALS, ONE JOIN</div>
+  <h1><em>3,251 filings</em> in.<br><b>18 buyers</b> out.</h1>
+  <div class="label" style="left:120px;top:222px">SEC Form D · Oct 10 to Nov 8, 2026</div>
+  <div class="counter" id="counter" style="right:120px;top:222px;width:320px">SCANNED <span>0</span>/3251</div>
+
+  <div id="tiles"></div>
+
+  <div class="stage-row row1"><span class="n">3,251</span><span class="t">form d filings</span></div>
+  <div class="stage-row row2"><span class="n">1,089</span><span class="t">operating companies</span></div>
+  <div class="stage-row row3"><span class="n">297</span><span class="t">tech companies</span></div>
+  <div class="stage-row row4"><span class="n">719</span><span class="t">open roles found</span></div>
+
+  <div id="sheets"></div>
+
+  <div class="foot">
+    <div class="who">Asshvin Kumar<span>GTM Engineer</span></div>
+    <div class="proof">every number here is counted<br>from the run file, not illustrated</div>
+  </div>
+</div>
+
+<!-- Source of truth: plays/01-fresh-capital-open-role/out/30d-2026-11-09/summary.json and aggregate.json -->
+<script id="data" type="application/json">
+{
+  "filings": 3251,
+  "operating": 1089,
+  "tech": 297,
+  "roles": 719,
+  "unique_companies": 18,
+  "total_raised_usd": 1908732450,
+  "matching_roles": 231,
+  "sheets": [
+    {"company": "Baseten",      "matches": 11, "verified": 1},
+    {"company": "Bluejay",      "matches": 9,  "verified": 1},
+    {"company": "Nectar",       "matches": 9,  "verified": 2},
+    {"company": "Wispr Flow",   "matches": 9,  "verified": 1},
+    {"company": "FlowGen Labs", "matches": 6,  "verified": 1}
+  ]
+}
+</script>
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById('data').textContent);
+  const TOTAL = 11;
+  const FADE_START = 10.2;
+  const ctx = document.getElementById('fx').getContext('2d');
+  let seed = 20261109;
+  const rand = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const ease = (p) => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const quad = (a, c, b, p) => (1 - p) * (1 - p) * a + 2 * (1 - p) * p * c + p * p * b;
+
+  // --- tiles: one per filing, a sampled subset drawn as a grid -------------
+  const COLS = 20, ROWS = 9, TILE_W = 26, TILE_H = 28, GAP = 5;
+  const GX = 420, GY = 296;
+  const tilesEl = document.getElementById('tiles');
+  const tiles = [];
+  const SAMPLE = 180;   // drawn tiles; each represents a real filing in the run
+  for (let i = 0; i < SAMPLE; i++) {
+    const col = i % COLS, row = Math.floor(i / COLS);
+    const x = GX + col * (TILE_W + GAP), y = GY + row * (TILE_H + GAP);
+    const el = document.createElement('div');
+    el.className = 'tile';
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.opacity = '0';
+    tilesEl.appendChild(el);
+    tiles.push({ el, x, y, w: TILE_W, h: TILE_H, order: (col * 0.6 + row * 1.3) / (COLS + 9) });
+  }
+
+  // --- five gift sheets --------------------------------------------------
+  const SHEET_W = 172, SHEET_H = 50, SGAP = 14;
+  const SGX = 96, SGY = 1000;
+  const sheetsEl = document.getElementById('sheets');
+  const sheets = [];
+  DATA.sheets.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'sheet';
+    el.style.left = (SGX + i * (SHEET_W + SGAP)) + 'px';
+    el.style.top = SGY + 'px';
+    el.style.opacity = '0';
+    el.innerHTML = '<i></i>' + s.company + ' <b>' + s.matches + '</b><br><u>' +
+                   s.verified + ' name-verified</u>';
+    sheetsEl.appendChild(el);
+    sheets.push({ el, x: SGX + i * (SHEET_W + SGAP), y: SGY, w: SHEET_W, h: SHEET_H, order: 0.55 + i * 0.06 });
+  });
+
+  const dust = Array.from({ length: 60 }, () => ({ x: rand() * 1080, y: rand() * 1350,
+    r: rand() * 1.6 + .4, a: rand() * .35 + .08, s: rand() * .25 + .06 }));
+
+  function glowDot(x, y, r, color, alpha) {
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
+    g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.globalAlpha = alpha; ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r * 4, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  const COUNTERS = [
+    { t: 0.02, to: DATA.filings, el: document.querySelector('#counter span') },
+    { t: 0.30, to: DATA.operating, el: document.querySelector('.row2 .n') },
+    { t: 0.46, to: DATA.tech, el: document.querySelector('.row3 .n') },
+    { t: 0.62, to: DATA.roles, el: document.querySelector('.row4 .n') },
+  ];
+  const BASE_N = { '.row1 .n': DATA.filings };
+
+  function drawDust() {
+    for (const d of dust) {
+      ctx.globalAlpha = d.a; ctx.fillStyle = '#8b95a7';
+      ctx.beginPath(); ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  window.renderAt = (sec) => {
+    const t = sec % TOTAL;
+    ctx.clearRect(0, 0, 1080, 1350);
+    drawDust();
+
+    const fade = t > FADE_START ? 1 - clamp((t - FADE_START) / (TOTAL - FADE_START)) : 1;
+    ctx.globalAlpha = fade;
+
+    // tiles appear in order
+    for (const tl of tiles) {
+      const local = clamp((t - 0.02 - tl.order * 0.30) / 0.16);
+      if (local <= 0) continue;
+      tl.el.style.opacity = String(local * fade);
+    }
+
+    // counters
+    for (const c of COUNTERS) {
+      const local = clamp((t - c.t) / 0.12);
+      if (local <= 0) { c.el.textContent = '0'; continue; }
+      const val = Math.round(c.to * ease(local));
+      c.el.textContent = c.el === COUNTERS[0].el ? String(val) :
+        val.toLocaleString('en-US');
+    }
+
+    // connectors from the tile grid down to the sheets
+    const gridBottom = GY + ROWS * (TILE_H + GAP);
+    sheets.forEach((sh, i) => {
+      const local = clamp((t - sh.order) / 0.14);
+      if (local <= 0) { sh.el.style.opacity = '0'; return; }
+      sh.el.style.opacity = String(local * fade);
+
+      const sx = sh.x + sh.w / 2, sy = sh.y;
+      const ex = sx, ey = gridBottom - 30;
+      const bend = 40;
+      const cx = (sx + ex) / 2, cy = (ey + sy) / 2 - bend;
+
+      ctx.strokeStyle = 'rgba(61,214,198,.35)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(sx, ey);
+      ctx.quadraticCurveTo(cx, cy, ex, sy - 10);
+      ctx.stroke();
+
+      // packets running down the wire
+      for (let k = 0; k < 3; k++) {
+        const pk = (local * 1.6 + k / 3) % 1;
+        if (pk > .92) continue;
+        const p = pk;
+        const x = (1 - p) * (1 - p) * sx + 2 * (1 - p) * p * cx + p * p * ex;
+        const y = (1 - p) * (1 - p) * ey + 2 * (1 - p) * p * cy + p * p * (sy - 10);
+        glowDot(x, y, 3.5, '#3dd6c6', .8 * local * fade);
+      }
+      glowDot(ex, sy, 5, '#3dd6c6', .5 * local * fade);
+    });
+
+    // amber input dots falling out of the grid as filings are consumed
+    if (t > .05) {
+      for (let i = 0; i < 26; i++) {
+        const p = ((t * .55 + i / 26) % 1);
+        const tl = tiles[Math.floor(rand() * tiles.length)];
+        const x = tl.x + tl.w / 2, y = tl.y + tl.h + p * 70;
+        glowDot(x, y, 2.4, '#ffb547', (1 - p) * .55 * fade);
+      }
+    }
+
+    ctx.globalAlpha = 1;
+  };
+})();
+</script>
+</body>
+</html>

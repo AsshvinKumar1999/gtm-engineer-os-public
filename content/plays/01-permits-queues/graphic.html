@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<title>Play 01: Permits + Queues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* STYLE: Blueprint Play (see skills/animated-infographic/SKILL.md) */
+  :root {
+    --paper: #f3f5f8; --grid: #e4e8ee; --card: #ffffff; --edge: #d6dce5;
+    --ink: #0b1220; --muted: #667085; --wire: #8e99ab;
+    --blue: #2f5bea; --chip: #eef3ff; --chip-edge: #c9d6f6; --chip-ink: #1d3a8a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; color: var(--ink);
+    font-family: Inter, system-ui, sans-serif; background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px; }
+  svg, canvas { position: absolute; inset: 0; pointer-events: none; }
+  .kicker { position: absolute; top: 58px; width: 100%; text-align: center; font: 600 17px 'JetBrains Mono', monospace;
+            letter-spacing: .14em; color: var(--blue); }
+  .kicker::before { content: ""; display: inline-block; width: 12px; height: 12px; background: var(--blue);
+                    margin-right: 10px; vertical-align: -1px; }
+  h1 { position: absolute; top: 84px; width: 100%; text-align: center; font: 400 104px 'Instrument Serif', serif;
+       letter-spacing: -.01em; line-height: 1.05; }
+  .sub { position: absolute; top: 206px; width: 100%; text-align: center; font: 500 15px 'JetBrains Mono', monospace;
+         letter-spacing: .1em; color: var(--muted); }
+  .banner { position: absolute; left: 56px; height: 42px; background: var(--ink); color: #fff; display: flex;
+            align-items: center; padding: 0 18px 0 8px; font: 500 21px Inter, sans-serif; white-space: nowrap; }
+  .banner i { font: 600 14px 'JetBrains Mono', monospace; font-style: normal; width: 26px; height: 26px; display: grid;
+              place-items: center; background: #a9bdff; color: var(--ink); margin-right: 14px; }
+  .card { position: absolute; background: var(--card); border: 1px solid var(--edge);
+          box-shadow: 0 1px 0 rgba(11,18,32,.04), 0 8px 24px -16px rgba(11,18,32,.25); }
+  .ch { display: flex; justify-content: space-between; align-items: baseline; padding: 16px 18px 10px; }
+  .ch b { font: 600 20px Inter, sans-serif; }
+  .ch span { font: 500 11.5px 'JetBrains Mono', monospace; letter-spacing: .12em; color: var(--muted); }
+  .card.head .ch { background: #eaf0fb; border-bottom: 1px solid var(--edge); padding-bottom: 14px; }
+  .cb { padding: 4px 18px 16px; }
+  .card.head .cb { padding-top: 14px; }
+  .desc { font: 400 15.5px/1.45 Inter, sans-serif; color: #3a4456; margin-bottom: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .chip { font: 500 14px Inter, sans-serif; color: var(--chip-ink); background: var(--chip); border: 1px solid var(--chip-edge);
+          padding: 5px 10px; }
+  .with { display: grid; grid-template-columns: 64px 1fr; align-items: start; }
+  .with > span { font: 500 11.5px 'JetBrains Mono', monospace; letter-spacing: .12em; color: var(--muted); padding-top: 6px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .tool { display: flex; align-items: center; font: 500 15px Inter, sans-serif; color: var(--ink); white-space: nowrap; }
+  .tool em { font: 600 10.5px 'JetBrains Mono', monospace; font-style: normal; width: 22px; height: 22px; display: grid;
+             place-items: center; border: 1px solid var(--edge); background: #f6f8fb; color: var(--blue); margin-right: 8px; }
+  .tier { position: absolute; height: 56px; background: var(--card); border: 1px solid var(--edge); display: flex;
+          align-items: center; gap: 12px; padding: 0 14px; }
+  .tier b { font: 600 15px 'JetBrains Mono', monospace; letter-spacing: .12em; white-space: nowrap; }
+  .tier span { font: 400 14px Inter, sans-serif; color: var(--muted); white-space: nowrap; }
+  .tier em { width: 22px; height: 22px; background: var(--ink); display: block; flex: none; }
+  .pill { position: absolute; height: 54px; background: var(--ink); color: #fff; display: flex; align-items: center;
+          justify-content: center; font: 500 19px Inter, sans-serif; }
+  .pill.end { height: 62px; font-size: 22px; box-shadow: 0 14px 30px -14px rgba(11,18,32,.6); }
+  .stack { position: absolute; left: 56px; right: 56px; top: 1652px; background: var(--card);
+           border: 1px solid var(--edge); padding: 22px 26px; }
+  .stack .lbl { font: 500 12px 'JetBrains Mono', monospace; letter-spacing: .14em; color: var(--muted); margin-bottom: 14px; }
+  .stack .tools { gap: 12px 22px; }
+  .foot { position: absolute; left: 0; right: 0; top: 1846px; height: 74px; border-top: 1px solid var(--edge);
+          background: var(--paper); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+  .foot span { font: 500 13px 'JetBrains Mono', monospace; letter-spacing: .14em; color: var(--muted); }
+  .foot b { font: 600 22px Inter, sans-serif; letter-spacing: -.01em; }
+  .bracket { position: absolute; width: 14px; height: 14px; border-color: var(--blue); border-style: solid; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="wires" width="1080" height="1920"></svg>
+
+  <div class="kicker">PLAY 01</div>
+  <h1>Permits + Queues</h1>
+  <div class="sub">A PAIN-SEGMENT PLAY FOR SELLERS INTO CONSTRUCTION AND ENERGY</div>
+
+  <!-- step 1 -->
+  <div class="banner" data-step="1" style="top:262px"><i>1</i>Find who was forced to publish</div>
+  <div class="card head" id="cA" data-step="1" style="left:90px;top:330px;width:430px">
+    <div class="ch"><b>Project records</b><span>BEFORE THE RFP</span></div>
+    <div class="cb">
+      <div class="chips"><span class="chip">Building permits</span><span class="chip">Interconnection queues</span><span class="chip">Zoning agendas</span></div>
+      <div class="with"><span>FROM</span><div class="tools"><span class="tool"><em>OD</em>City open-data portals</span><span class="tool"><em>IQ</em>ISO/RTO queue files</span></div></div>
+    </div>
+  </div>
+  <div class="card head" id="cB" data-step="1" style="left:560px;top:330px;width:430px">
+    <div class="ch"><b>Company records</b><span>WHO IS BUILDING</span></div>
+    <div class="cb">
+      <div class="chips"><span class="chip">Contractor licenses</span><span class="chip">OSHA inspections</span><span class="chip">Air permits</span></div>
+      <div class="with"><span>FROM</span><div class="tools"><span class="tool"><em>LB</em>State license boards</span><span class="tool"><em>OS</em>OSHA</span><span class="tool"><em>EC</em>EPA ECHO</span></div></div>
+    </div>
+  </div>
+
+  <!-- step 2 -->
+  <div class="banner" data-step="2" style="top:592px"><i>2</i>Join records into one project</div>
+  <div class="card" id="c2" data-step="2" style="left:600px;top:580px;width:390px">
+    <div class="ch"><b>Project timeline</b><span>DATED</span></div>
+    <div class="cb">
+      <div class="desc">Match by address, parcel and developer. Every fact keeps its date and source.</div>
+      <div class="with"><span>WITH</span><div class="tools"><span class="tool"><em>CC</em>Claude Code</span><span class="tool"><em>DB</em>dossier-builder</span></div></div>
+    </div>
+  </div>
+
+  <!-- step 3 -->
+  <div class="banner" data-step="3" style="top:810px"><i>3</i>Score the situation, not the company</div>
+  <div class="tier" id="t1" data-step="3" style="left:90px;top:878px;width:290px"><em></em><b>TIER 1</b><span>Permit + queue moved</span></div>
+  <div class="tier" id="t2" data-step="3" style="left:395px;top:878px;width:290px"><em style="opacity:.55"></em><b>TIER 2</b><span>Queue moved only</span></div>
+  <div class="tier" id="t3" data-step="3" style="left:700px;top:878px;width:290px"><em style="opacity:.25"></em><b>TIER 3</b><span>Permit only</span></div>
+  <div class="pill" id="p3" data-step="3" style="left:300px;top:984px;width:480px">One project list feeds every motion</div>
+
+  <!-- step 4 -->
+  <div class="banner" data-step="4" style="top:1086px"><i>4</i>Write the message from the record</div>
+  <div class="card" id="c4a" data-step="4" style="left:90px;top:1154px;width:430px">
+    <div class="ch"><b>1:1 message</b><span>PER PROJECT</span></div>
+    <div class="cb">
+      <div class="desc">Names the record, its date and what it means for them. Useful even with no reply.</div>
+      <div class="with"><span>WITH</span><div class="tools"><span class="tool"><em>PV</em>pvp-writer</span><span class="tool"><em>BC</em>buyer-critic</span></div></div>
+    </div>
+  </div>
+  <div class="card" id="c4b" data-step="4" style="left:560px;top:1154px;width:430px">
+    <div class="ch"><b>Market map</b><span>MONTHLY, PUBLIC</span></div>
+    <div class="cb">
+      <div class="desc">The same records as one animated post. Buyers watch their region move.</div>
+      <div class="with"><span>WITH</span><div class="tools"><span class="tool"><em>AI</em>animated-infographic</span></div></div>
+    </div>
+  </div>
+
+  <!-- step 5 -->
+  <div class="banner" data-step="5" style="top:1360px"><i>5</i>Verify before anything ships</div>
+  <div class="card" id="c5" data-step="5" style="left:560px;top:1348px;width:430px">
+    <div class="ch"><b>Three gates</b><span>CODE, THEN HUMAN</span></div>
+    <div class="cb">
+      <div class="desc">Every quote matches its source. No AI tells. Spend confirmed.</div>
+      <div class="with"><span>WITH</span><div class="tools"><span class="tool"><em>SV</em>skeptic-verifier</span><span class="tool"><em>LT</em>lint_ai_tells</span><span class="tool"><em>CG</em>cost_guard</span></div></div>
+    </div>
+  </div>
+  <div class="pill end" id="pEnd" data-step="5" style="left:250px;top:1560px;width:580px">A meeting from a record they recognize</div>
+
+  <div class="stack" data-step="6">
+    <div class="lbl">THE STACK · PUBLIC DATA + GTM-ENGINEER-OS</div>
+    <div class="tools">
+      <span class="tool"><em>OD</em>City open data</span><span class="tool"><em>IQ</em>ISO/RTO queues</span>
+      <span class="tool"><em>LB</em>License boards</span><span class="tool"><em>OS</em>OSHA</span><span class="tool"><em>EC</em>EPA ECHO</span>
+      <span class="tool"><em>CC</em>Claude Code</span><span class="tool"><em>DB</em>dossier-builder</span><span class="tool"><em>PV</em>pvp-writer</span>
+      <span class="tool"><em>BC</em>buyer-critic</span><span class="tool"><em>SV</em>skeptic-verifier</span><span class="tool"><em>LT</em>lint_ai_tells</span>
+      <span class="tool"><em>CG</em>cost_guard</span><span class="tool"><em>AI</em>animated-infographic</span>
+    </div>
+  </div>
+  <div class="foot"><span>ASSHVIN KUMAR · GTM PLAYS</span><b>Every step runs in code</b></div>
+
+  <canvas id="fx" width="1080" height="1920"></canvas>
+  <div id="brk"></div>
+</div>
+
+<script>
+// Wires are measured from rendered boxes, so build everything after fonts load.
+document.fonts.ready.then(() => {
+  const TOTAL = 12, FADE_START = 11.3, REVEAL = 0.6;
+  const STEP_AT = { 1: 0.3, 2: 1.2, 3: 2.0, 4: 2.9, 5: 3.7, 6: 4.4 };
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+  const $ = (id) => document.getElementById(id);
+
+  // Wires are measured from the real boxes: bottom-center of `from` -> top-center of `to`,
+  // with the horizontal run 14px above the target. [revealStep, fromId, toId]
+  const WIRES = [
+    [2, 'cA', 'c2'], [2, 'cB', 'c2'],
+    [3, 'c2', 't1'], [3, 'c2', 't2'], [3, 'c2', 't3'],
+    [3, 't1', 'p3'], [3, 't2', 'p3'], [3, 't3', 'p3'],
+    [4, 'p3', 'c4a'], [4, 'p3', 'c4b'],
+    [5, 'c4a', 'c5'], [5, 'c4b', 'c5'],
+    [5, 'c5', 'pEnd'],
+  ];
+
+  const svg = $('wires');
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (d) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d);
+    p.setAttribute('fill', 'none'); p.setAttribute('stroke', '#8e99ab'); p.setAttribute('stroke-width', '1.5');
+    svg.appendChild(p); return p; };
+  const wires = WIRES.map(([step, f, t]) => {
+    const a = $(f), b = $(t);
+    const fx = a.offsetLeft + a.offsetWidth / 2, fy = a.offsetTop + a.offsetHeight;
+    const tx = b.offsetLeft + b.offsetWidth / 2, ty = b.offsetTop;
+    const my = ty - 14;
+    const pts = fx === tx ? [[fx, fy], [tx, ty]] : [[fx, fy], [fx, my], [tx, my], [tx, ty]];
+    const path = mk(pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' '));
+    const head = mk(`M${tx - 5} ${ty - 7} L${tx} ${ty} L${tx + 5} ${ty - 7}`);
+    let len = 0; const segs = [];
+    for (let i = 1; i < pts.length; i++) {
+      const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      segs.push({ a: pts[i - 1], b: pts[i], l, s: len }); len += l;
+    }
+    path.style.strokeDasharray = len;
+    return { step, path, head, segs, len };
+  });
+  const pointAt = (w, d) => {
+    for (const s of w.segs) if (d <= s.s + s.l) {
+      const p = (d - s.s) / s.l; return [s.a[0] + (s.b[0] - s.a[0]) * p, s.a[1] + (s.b[1] - s.a[1]) * p];
+    }
+    return w.segs[w.segs.length - 1].b;
+  };
+
+  const els = [...document.querySelectorAll('[data-step]')];
+  const heads = [...document.querySelectorAll('.kicker, h1, .sub')];
+  const ctx = $('fx').getContext('2d');
+
+  // Corner brackets that walk from card to card once the play is on screen.
+  const brkBox = document.createElement('div'); brkBox.style.position = 'absolute';
+  ['top:-7px;left:-7px;border-width:2px 0 0 2px', 'top:-7px;right:-7px;border-width:2px 2px 0 0',
+   'bottom:-7px;left:-7px;border-width:0 0 2px 2px', 'bottom:-7px;right:-7px;border-width:0 2px 2px 0']
+    .forEach(c => { const b = document.createElement('div'); b.className = 'bracket'; b.style.cssText += c; brkBox.appendChild(b); });
+  $('brk').appendChild(brkBox);
+  const focus = ['cA', 'cB', 'c2', 'p3', 'c4a', 'c4b', 'c5', 'pEnd'].map($);
+  const FOCUS_START = 4.6, FOCUS_EACH = 0.8;
+
+  window.renderAt = (t) => {
+    t = ((t % TOTAL) + TOTAL) % TOTAL;
+    const fade = 1 - clamp((t - FADE_START) / (TOTAL - FADE_START));
+
+    for (const el of heads) {
+      const p = easeOut(clamp(t / 0.5));
+      el.style.opacity = p * (0.2 + 0.8 * fade); el.style.transform = `translateY(${(1 - p) * 10}px)`;
+    }
+    // sweep-in reveal: left-to-right clip with a small rise
+    for (const el of els) {
+      const p = easeOut(clamp((t - STEP_AT[el.dataset.step]) / REVEAL));
+      el.style.clipPath = `inset(-30px ${100 - p * 100}% -30px -30px)`;
+      el.style.opacity = (p > 0 ? 1 : 0) * fade;
+      el.style.transform = `translateY(${(1 - p) * 8}px)`;
+    }
+    // wires draw themselves just after their step appears
+    for (const w of wires) {
+      const p = easeOut(clamp((t - STEP_AT[w.step] + 0.15) / 0.55));
+      w.path.style.strokeDashoffset = w.len * (1 - p);
+      w.path.style.opacity = fade; w.head.style.opacity = (p > 0.98 ? 1 : 0) * fade;
+    }
+    // packets: blue squares flowing down every live wire
+    ctx.clearRect(0, 0, 1080, 1920);
+    const SPEED = 170, GAP = 120;
+    wires.forEach((w, i) => {
+      const live = t - STEP_AT[w.step] - 0.7;
+      if (live <= 0) return;
+      const lead = live * SPEED;
+      const offset = (i * 37) % GAP;
+      for (let d = (lead + offset) % GAP; d < w.len && d <= lead; d += GAP) {
+        const [x, y] = pointAt(w, d);
+        const edge = clamp(d / 18) * clamp((w.len - d) / 18);
+        ctx.fillStyle = '#2f5bea';
+        ctx.globalAlpha = 0.16 * edge * fade; ctx.fillRect(x - 8, y - 8, 16, 16);
+        ctx.globalAlpha = edge * fade; ctx.fillRect(x - 3, y - 3, 6, 6);
+      }
+    });
+    ctx.globalAlpha = 1;
+
+    if (t > FOCUS_START) {
+      const n = (t - FOCUS_START) / FOCUS_EACH;
+      const el = focus[Math.floor(n) % focus.length];
+      const local = n % 1;
+      const pad = 12 - 7 * easeOut(clamp(local / 0.35));
+      Object.assign(brkBox.style, { left: el.offsetLeft - pad + 'px', top: el.offsetTop - pad + 'px',
+        width: el.offsetWidth + pad * 2 + 'px', height: el.offsetHeight + pad * 2 + 'px' });
+      brkBox.style.opacity = clamp(local / 0.15) * fade;
+    } else brkBox.style.opacity = 0;
+  };
+
+  window.renderAt(0);
+  if (!new URLSearchParams(location.search).has('capture')) {
+    const start = performance.now();
+    const loop = (now) => { window.renderAt((now - start) / 1000); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+});
+</script>
+</body>
+</html>

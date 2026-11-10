@@ -1,0 +1,35 @@
+{
+  "note": "Rendered media facts per post. Regenerate with media-facts.py.",
+  "001-hundred-posts": {
+    "files": {
+      "graphic.gif": 2561124,
+      "graphic.mp4": 1090971,
+      "poster.png": 430883
+    },
+    "files_mb": {
+      "graphic.gif": 2.44,
+      "graphic.mp4": 1.04,
+      "poster.png": 0.41
+    },
+    "canvas": {
+      "width": 1080,
+      "height": 1350
+    }
+  },
+  "002-buyer-gift": {
+    "files": {
+      "graphic.gif": 911807,
+      "graphic.mp4": 433323,
+      "poster.png": 371112
+    },
+    "files_mb": {
+      "graphic.gif": 0.87,
+      "graphic.mp4": 0.41,
+      "poster.png": 0.35
+    },
+    "canvas": {
+      "width": 1080,
+      "height": 1350
+    }
+  }
+}

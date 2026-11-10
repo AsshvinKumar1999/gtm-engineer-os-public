@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<title>Build Log 001</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1015; --panel: #151a22; --line: #262e3b;
+    --ink: #eef1f6; --muted: #8b95a7; --dim: #5d6678;
+    --input: #ffb547;   /* amber = raw input moving through the system */
+    --built: #3dd6c6;   /* teal  = things that were built */
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); }
+  #stage {
+    position: relative; width: 1080px; height: 1350px; overflow: hidden;
+    background: radial-gradient(900px 700px at 50% 50%, #151b26 0%, var(--bg) 72%);
+    font-family: 'Space Grotesk', system-ui, sans-serif; color: var(--ink);
+  }
+  canvas { position: absolute; inset: 0; }
+  .kicker { position: absolute; left: 72px; top: 62px; font: 600 19px 'JetBrains Mono', monospace;
+            letter-spacing: .14em; color: var(--input); }
+  h1 { position: absolute; left: 72px; top: 98px; width: 960px; font-size: 68px; line-height: 1.02;
+       font-weight: 700; letter-spacing: -.025em; }
+  h1 em { font-style: normal; color: var(--input); }
+  h1 b { color: var(--built); font-weight: 700; }
+  .label { position: absolute; font: 500 16px 'JetBrains Mono', monospace; color: var(--muted);
+           letter-spacing: .08em; text-transform: uppercase; }
+  .counter { position: absolute; font: 600 16px 'JetBrains Mono', monospace; color: var(--ink);
+             letter-spacing: .08em; text-align: right; }
+  .counter span { color: var(--input); }
+  .tile { position: absolute; width: 34px; height: 40px; border-radius: 5px;
+          border: 1px solid #3a4456; background: #1b222d; }
+  .tile::after { content: ""; position: absolute; left: 7px; right: 7px; top: 10px; height: 2px;
+                 background: #4a5568; box-shadow: 0 7px 0 #4a5568, 0 14px 0 #4a5568; }
+  .chip { position: absolute; height: 40px; border-radius: 9px; border: 1px solid var(--line);
+          background: var(--panel); font: 500 15px 'JetBrains Mono', monospace; display: flex;
+          align-items: center; padding: 0 14px; color: var(--dim); white-space: nowrap; }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); margin-right: 10px;
+            flex: none; }
+  .synth { position: absolute; left: 0; width: 1080px; top: 806px; text-align: center;
+           font: 500 17px 'JetBrains Mono', monospace; color: var(--ink); letter-spacing: .04em; }
+  .synth span { color: var(--muted); }
+  .foot { position: absolute; left: 72px; right: 72px; top: 1236px; border-top: 1px solid var(--line);
+          padding-top: 22px; display: flex; justify-content: space-between; align-items: baseline; }
+  .foot .who { font-size: 24px; font-weight: 700; }
+  .foot .who span { color: var(--muted); font-weight: 500; font-size: 19px; margin-left: 10px; }
+  .foot .proof { font: 500 14px 'JetBrains Mono', monospace; color: var(--muted); text-align: right;
+                 line-height: 1.5; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="fx" width="1080" height="1350"></canvas>
+  <div class="kicker">BUILD LOG 001 · REVERSE-ENGINEERING A GTM ENGINEER</div>
+  <h1><em>100 posts</em> in.<br>One GTM system <b>out</b>.</h1>
+  <div class="label" style="left:120px;top:262px">Jordan Crawford's posts · ~1.5M characters</div>
+  <div class="counter" id="counter" style="right:120px;top:262px;width:300px">READ <span>0</span>/100</div>
+  <div id="tiles"></div>
+  <div class="synth" id="synth">1 law · 6 questions · 10 rules <span>→ SYNTHESIS.md</span></div>
+  <div class="label" style="left:72px;top:868px">10 skills</div>
+  <div class="label" style="left:548px;top:868px">3 agents + loop</div>
+  <div class="label" style="left:800px;top:868px">3 scripts + tests</div>
+  <div id="chips"></div>
+  <div class="foot">
+    <div class="who">Asshvin Kumar<span>GTM Engineer</span></div>
+    <div class="proof">every number here is counted<br>from the repo, not illustrated</div>
+  </div>
+</div>
+
+<!-- Source of truth for every number on the graphic: gtm-engineer-os repo, commit 2798a22 -->
+<script id="data" type="application/json">
+{
+  "posts": 100,
+  "skills": ["asymmetry-engine", "pain-segment-finder", "pvp-writer", "dossier-builder",
+             "win-loss-rewind", "cheap-right-answers", "evidence-pack-judge", "editorial-gate",
+             "data-source-hunter", "edge-review"],
+  "agents": ["skeptic-verifier", "buyer-critic", "blind-planner", "weekly auto-review"],
+  "scripts": ["lint_ai_tells", "cost_guard", "ingest_pdfs", "6 tests passing"]
+}
+</script>
+<script>
+(() => {
+  const DATA = JSON.parse(document.getElementById('data').textContent);
+  const TOTAL = 11;            // seconds per loop
+  const FADE_START = 10.2;
+  const CORE = { x: 540, y: 690, r: 62 };
+  const ctx = document.getElementById('fx').getContext('2d');
+
+  // Seeded RNG so every render of frame t is identical.
+  let seed = 7;
+  const rand = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const ease = (p) => p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const quad = (a, c, b, p) => (1 - p) * (1 - p) * a + 2 * (1 - p) * p * c + p * p * b;
+
+  // ---- input tiles: 20 x 5 grid, one per post ----
+  const tilesEl = document.getElementById('tiles');
+  const tiles = [];
+  for (let i = 0; i < DATA.posts; i++) {
+    const col = i % 20, row = Math.floor(i / 20);
+    const x = 120 + col * 42, y = 300 + row * 48;
+    const el = document.createElement('div');
+    el.className = 'tile'; el.style.left = x + 'px'; el.style.top = y + 'px';
+    tilesEl.appendChild(el);
+    // emission order sweeps diagonally so the grid "drains" visibly
+    const order = (col + row * 1.7) / (19 + 4 * 1.7);
+    tiles.push({ el, cx: x + 17, cy: y + 20, emit: 0.3 + order * 2.6 + rand() * 0.25,
+                 dur: 0.95 + rand() * 0.35, bend: (rand() - .5) * 260 });
+  }
+
+  // ---- output chips ----
+  const chipsEl = document.getElementById('chips');
+  const chips = [];
+  const addChip = (name, x, y, w, j) => {
+    const el = document.createElement('div');
+    el.className = 'chip'; el.innerHTML = '<i></i>' + name;
+    Object.assign(el.style, { left: x + 'px', top: y + 'px', width: w + 'px' });
+    chipsEl.appendChild(el);
+    chips.push({ el, dot: el.firstChild, tx: x + 18, ty: y + 20,
+                 emit: 4.3 + j * 0.22, dur: 0.8 + rand() * 0.2, bend: (rand() - .5) * 180 });
+  };
+  let j = 0;
+  DATA.skills.forEach((s, i) => addChip(s, 72 + (i % 2) * 232, 902 + Math.floor(i / 2) * 52, 220, j++));
+  DATA.agents.forEach((s, i) => addChip(s, 548, 902 + i * 52, 230, j++));
+  DATA.scripts.forEach((s, i) => addChip(s, 800, 902 + i * 52, 208, j++));
+
+  // ---- dust field (drifts slowly, wraps) ----
+  const dust = Array.from({ length: 70 }, () => ({ x: rand() * 1080, y: rand() * 1350,
+    v: 4 + rand() * 8, r: .6 + rand() * 1.2, a: .05 + rand() * .12 }));
+
+  const counterEl = document.querySelector('#counter span');
+  const synthEl = document.getElementById('synth');
+
+  function glowDot(x, y, r, color, alpha) {
+    ctx.globalAlpha = alpha;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 4);
+    g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r * 4, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = Math.min(1, alpha * 1.4); ctx.fillStyle = '#fff';
+    ctx.beginPath(); ctx.arc(x, y, r * .55, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  function flight(from, to, bend, p) {
+    const cx = (from.x + to.x) / 2 + bend, cy = (from.y + to.y) / 2;
+    return { x: quad(from.x, cx, to.x, p), y: quad(from.y, cy, to.y, p) };
+  }
+
+  function drawTrail(from, to, bend, p, color, fade) {
+    for (let k = 7; k >= 0; k--) {
+      const q = ease(clamp(p - k * 0.025));
+      if (q <= 0) continue;
+      const pt = flight(from, to, bend, q);
+      glowDot(pt.x, pt.y, 2.6 - k * 0.22, color, (0.9 - k * 0.11) * fade);
+    }
+  }
+
+  window.renderAt = (t) => {
+    t = ((t % TOTAL) + TOTAL) % TOTAL;
+    const fade = 1 - clamp((t - FADE_START) / (TOTAL - FADE_START));
+    ctx.clearRect(0, 0, 1080, 1350);
+
+    // dot grid + dust
+    ctx.fillStyle = 'rgba(255,255,255,0.035)';
+    for (let x = 18; x < 1080; x += 36) for (let y = 18; y < 1350; y += 36) ctx.fillRect(x, y, 1.4, 1.4);
+    for (const d of dust) {
+      const y = ((d.y - d.v * t) % 1350 + 1350) % 1350;
+      ctx.globalAlpha = d.a; ctx.fillStyle = '#cfd6e4';
+      ctx.beginPath(); ctx.arc(d.x, y, d.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    // input particles: posts -> core
+    let arrived = 0, lastArrival = -9;
+    const core = { x: CORE.x, y: CORE.y - 20 };
+    for (const tl of tiles) {
+      const p = (t - tl.emit) / tl.dur;
+      const sent = t >= tl.emit;
+      const flash = sent ? clamp(1 - (t - tl.emit) / 0.35) : 0;
+      tl.el.style.borderColor = flash > 0 ? 'rgba(255,181,71,' + (0.4 + flash * .6) + ')' : '#3a4456';
+      tl.el.style.opacity = sent ? (1 - 0.62 * fade) : 1;
+      if (p >= 1) { arrived++; lastArrival = Math.max(lastArrival, tl.emit + tl.dur); continue; }
+      if (p > 0) drawTrail({ x: tl.cx, y: tl.cy }, core, tl.bend, p, '#ffb547', fade);
+    }
+    counterEl.textContent = String(arrived);
+
+    // core
+    const fill = arrived / DATA.posts;
+    const pulse = clamp(1 - (t - lastArrival) / 0.4) * 0.5;
+    const glow = (0.25 + fill * 0.75 + pulse) * fade;
+    const g = ctx.createRadialGradient(CORE.x, CORE.y, 0, CORE.x, CORE.y, CORE.r * 3.2);
+    g.addColorStop(0, 'rgba(255,181,71,' + (0.38 * glow) + ')');
+    g.addColorStop(0.45, 'rgba(61,214,198,' + (0.12 * glow) + ')');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(CORE.x, CORE.y, CORE.r * 3.2, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#121821'; ctx.strokeStyle = 'rgba(255,181,71,' + (0.35 + 0.65 * glow) + ')';
+    ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(CORE.x, CORE.y, CORE.r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    // fill level inside the core
+    ctx.save(); ctx.beginPath(); ctx.arc(CORE.x, CORE.y, CORE.r - 5, 0, Math.PI * 2); ctx.clip();
+    ctx.fillStyle = 'rgba(255,181,71,0.16)';
+    const lvl = CORE.y + CORE.r - (CORE.r * 2) * fill * fade;
+    ctx.beginPath(); ctx.moveTo(CORE.x - CORE.r, lvl);
+    for (let x = -CORE.r; x <= CORE.r; x += 4) ctx.lineTo(CORE.x + x, lvl + Math.sin(x / 9 + t * 4) * 3);
+    ctx.lineTo(CORE.x + CORE.r, CORE.y + CORE.r); ctx.lineTo(CORE.x - CORE.r, CORE.y + CORE.r); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#eef1f6'; ctx.font = '600 15px "JetBrains Mono", monospace'; ctx.textAlign = 'center';
+    ctx.fillText('SYNTHESIS', CORE.x, CORE.y + 5);
+    // rotating weekly ring
+    ctx.save(); ctx.translate(CORE.x, CORE.y); ctx.rotate(t * 0.55);
+    ctx.setLineDash([3, 9]); ctx.strokeStyle = 'rgba(61,214,198,0.55)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(0, 0, CORE.r + 26, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]); ctx.fillStyle = '#3dd6c6';
+    ctx.beginPath(); ctx.arc(CORE.r + 26, 0, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = 'rgba(61,214,198,0.8)'; ctx.font = '500 13px "JetBrains Mono", monospace';
+    ctx.textAlign = 'left'; ctx.fillText('re-runs every Monday', CORE.x + CORE.r + 44, CORE.y - 52);
+
+    synthEl.style.opacity = clamp((t - 3.3) / 0.6) * fade;
+
+    // output particles: core -> chips
+    const from = { x: CORE.x, y: CORE.y + CORE.r };
+    for (const c of chips) {
+      const to = { x: c.tx, y: c.ty };
+      for (let k = 0; k < 3; k++) {
+        const p = (t - c.emit - k * 0.07) / c.dur;
+        if (p > 0 && p < 1) drawTrail(from, to, c.bend + k * 14, p, '#3dd6c6', fade);
+      }
+      const done = t > c.emit + c.dur;
+      const lit = clamp((t - c.emit - c.dur) / 0.25) * fade;
+      const flash = done ? clamp(1 - (t - c.emit - c.dur) / 0.5) : 0;
+      c.el.style.borderColor = lit > 0 ? 'rgba(61,214,198,' + (0.35 + 0.5 * lit) + ')' : '#262e3b';
+      c.el.style.color = lit > 0 ? 'rgba(238,241,246,' + (0.45 + 0.55 * lit) + ')' : '#5d6678';
+      c.el.style.boxShadow = flash > 0 ? '0 0 ' + (24 * flash) + 'px rgba(61,214,198,' + (0.45 * flash) + ')' : 'none';
+      c.dot.style.background = lit > 0 ? '#3dd6c6' : '#5d6678';
+    }
+  };
+
+  window.renderAt(0);
+  if (!new URLSearchParams(location.search).has('capture')) {
+    const start = performance.now();
+    const loop = (now) => { window.renderAt((now - start) / 1000); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+})();
+</script>
+</body>
+</html>

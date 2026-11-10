@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1080">
+<title>Play 01: Fresh Capital + Open Role</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* STYLE: Blueprint Play + run receipt numbers (skills/animated-infographic/SKILL.md) */
+  :root {
+    --paper: #f3f5f8; --grid: #e4e8ee; --card: #ffffff; --edge: #d6dce5;
+    --ink: #0b1220; --muted: #667085; --blue: #2f5bea;
+    --chip: #eef3ff; --chip-edge: #c9d6f6; --chip-ink: #1d3a8a;
+    --signal: #e8900c; --signal-soft: #fff3df;
+    --wire: #8e99ab; --pkt: #2f5bea; --pkt-hot: #e8900c;
+  }
+  /* ?theme=dark: matches the GTM Signal Plays site (navy + light blue) */
+  body.dark {
+    --paper: #04060c; --grid: #0e1320; --card: #0b0f1a; --edge: #1f2738; --ink: #eef1f6; --muted: #8a93a4;
+    --blue: #8fb3ff; --chip: #0f1626; --chip-edge: #263045; --chip-ink: #b7cdff;
+    --signal: #8fb3ff; --signal-soft: rgba(143,179,255,.10);
+    --wire: #34405a; --pkt: #8fb3ff; --pkt-hot: #e4ecff;
+  }
+  body.dark .banner { background: #0f1626; border: 1px solid #263045; }
+  body.dark .banner i { background: #8fb3ff; }
+  body.dark .pill { background: #8fb3ff; color: #06090f; }
+  body.dark .desc { color: #c3cad6; }
+  body.dark .tool em { background: #0f1626; }
+  body.dark .card.head .ch { background: #0f1626; }
+  body.dark .card { box-shadow: none; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; color: var(--ink);
+    font-family: Inter, system-ui, sans-serif; background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 24px 24px; }
+  svg, canvas { position: absolute; inset: 0; pointer-events: none; }
+  .kicker { position: absolute; top: 56px; width: 100%; text-align: center; font: 600 17px 'JetBrains Mono', monospace;
+            letter-spacing: .14em; color: var(--blue); }
+  .kicker::before { content: ""; display: inline-block; width: 12px; height: 12px; background: var(--signal);
+                    margin-right: 10px; vertical-align: -1px; }
+  h1 { position: absolute; top: 80px; width: 100%; text-align: center; font: 400 100px/0.98 'Instrument Serif', serif; letter-spacing: -.01em; }
+  h1 em { font-style: normal; color: var(--signal); }
+  .sub { position: absolute; top: 290px; width: 100%; text-align: center; font: 500 15px 'JetBrains Mono', monospace;
+         letter-spacing: .1em; color: var(--muted); }
+  .banner { position: absolute; left: 56px; height: 42px; background: var(--ink); color: #fff; display: flex;
+            align-items: center; padding: 0 18px 0 8px; font: 500 21px Inter, sans-serif; white-space: nowrap; }
+  .banner i { font: 600 14px 'JetBrains Mono', monospace; font-style: normal; width: 26px; height: 26px; display: grid;
+              place-items: center; background: #a9bdff; color: var(--ink); margin-right: 14px; }
+  .card { position: absolute; background: var(--card); border: 1px solid var(--edge);
+          box-shadow: 0 1px 0 rgba(11,18,32,.04), 0 8px 24px -16px rgba(11,18,32,.25); }
+  .ch { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 18px 4px; }
+  .ch b { font: 600 19px Inter, sans-serif; }
+  .ch span { font: 500 11.5px 'JetBrains Mono', monospace; letter-spacing: .12em; color: var(--muted); }
+  .card.head .ch { background: #eaf0fb; border-bottom: 1px solid var(--edge); padding-bottom: 12px; }
+  .cb { padding: 6px 18px 16px; }
+  .num { font: 400 64px/1 'Instrument Serif', serif; font-variant-numeric: tabular-nums; margin: 4px 0 6px; }
+  .desc { font: 400 15px/1.45 Inter, sans-serif; color: #3a4456; margin-bottom: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .chip { font: 500 13.5px Inter, sans-serif; color: var(--chip-ink); background: var(--chip); border: 1px solid var(--chip-edge); padding: 4px 9px; }
+  .with { display: grid; grid-template-columns: 64px 1fr; align-items: start; }
+  .with > span { font: 500 11.5px 'JetBrains Mono', monospace; letter-spacing: .12em; color: var(--muted); padding-top: 5px; }
+  .tools { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .tool { display: flex; align-items: center; font: 500 15px Inter, sans-serif; white-space: nowrap; }
+  .tool em { font: 600 10.5px 'JetBrains Mono', monospace; font-style: normal; width: 22px; height: 22px; display: grid;
+             place-items: center; border: 1px solid var(--edge); background: #f6f8fb; color: var(--blue); margin-right: 8px; }
+  .tier { position: absolute; height: 76px; background: var(--card); border: 1px solid var(--edge); display: flex;
+          align-items: center; gap: 14px; padding: 0 16px; }
+  .tier b { font: 600 14px 'JetBrains Mono', monospace; letter-spacing: .12em; white-space: nowrap; }
+  .tier span { font: 400 13.5px/1.3 Inter, sans-serif; color: var(--muted); }
+  .tier strong { font: 400 46px/1 'Instrument Serif', serif; margin-left: auto; font-variant-numeric: tabular-nums; }
+  .tier.t1 { border-color: var(--signal); background: var(--signal-soft); }
+  .tier.t1 strong { color: var(--signal); }
+  .pill { position: absolute; height: 54px; background: var(--ink); color: #fff; display: flex; align-items: center;
+          justify-content: center; font: 500 19px Inter, sans-serif; }
+  .pill.end { height: 62px; font-size: 22px; box-shadow: 0 14px 30px -14px rgba(11,18,32,.6); }
+  .stack { position: absolute; left: 56px; right: 56px; top: 1676px; background: var(--card); border: 1px solid var(--edge); padding: 20px 26px; }
+  .stack .lbl { font: 500 12px 'JetBrains Mono', monospace; letter-spacing: .14em; color: var(--muted); margin-bottom: 12px; }
+  .stack .tools { gap: 10px 22px; }
+  .foot { position: absolute; left: 0; right: 0; top: 1846px; height: 74px; border-top: 1px solid var(--edge);
+          background: var(--paper); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+  .foot span { font: 500 13px 'JetBrains Mono', monospace; letter-spacing: .14em; color: var(--muted); }
+  .foot b { font: 600 21px Inter, sans-serif; letter-spacing: -.01em; }
+  .bracket { position: absolute; width: 14px; height: 14px; border-color: var(--blue); border-style: solid; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="wires" width="1080" height="1920"></svg>
+
+  <div class="kicker">PLAY 01 · SAAS</div>
+  <h1>Fresh Capital<br><em>+</em> Open Role</h1>
+  <div class="sub" id="sub">TESTED ON REAL SEC FILINGS · FREE DATA · NO API KEYS</div>
+
+  <div class="banner" data-step="1" style="top:350px"><i>1</i>Pull who was forced to publish</div>
+  <div class="card head" id="cA" data-step="1" style="left:90px;top:418px;width:430px">
+    <div class="ch"><b>New Form D filings</b><span>7 DAYS</span></div>
+    <div class="cb"><div class="num" data-k="form_d_new">0</div>
+      <div class="with"><span>FROM</span><div class="tools"><span class="tool"><em>SE</em>SEC EDGAR daily index</span></div></div></div>
+  </div>
+  <div class="card head" id="cB" data-step="1" style="left:560px;top:418px;width:430px">
+    <div class="ch"><b>Real companies</b><span>NOISE REMOVED</span></div>
+    <div class="cb"><div class="num" data-k="operating">0</div>
+      <div class="chips"><span class="chip">Funds + SPVs out</span><span class="chip">Amendments out</span></div></div>
+  </div>
+
+  <div class="banner" data-step="2" style="top:652px"><i>2</i>Keep software and tech</div>
+  <div class="card" id="c2" data-step="2" style="left:560px;top:640px;width:430px">
+    <div class="ch"><b>Tech companies</b><span>INDUSTRY ON FILING</span></div>
+    <div class="cb"><div class="num" data-k="tech">0</div>
+      <div class="desc">With amount raised and the executives named on the filing.</div></div>
+  </div>
+
+  <div class="banner" data-step="3" style="top:878px"><i>3</i>Find their public job board</div>
+  <div class="card" id="c3" data-step="3" style="left:560px;top:866px;width:430px">
+    <div class="ch"><b>Board found</b><span>NAME → SLUG</span></div>
+    <div class="cb"><div class="num" data-k="with_board">0</div>
+      <div class="with"><span>FROM</span><div class="tools"><span class="tool"><em>GH</em>Greenhouse</span><span class="tool"><em>LV</em>Lever</span><span class="tool"><em>AS</em>Ashby</span></div></div></div>
+  </div>
+
+  <div class="banner" data-step="4" style="top:1094px"><i>4</i>Score the situation</div>
+  <div class="tier t1" id="t1" data-step="4" style="left:90px;top:1162px;width:290px"><b>TIER 1</b><span>Raised +<br>target role open</span><strong data-k="tier1">0</strong></div>
+  <div class="tier" id="t2" data-step="4" style="left:395px;top:1162px;width:290px"><b>TIER 2</b><span>Raised +<br>other roles</span><strong data-k="tier2">0</strong></div>
+  <div class="tier" id="t3" data-step="4" style="left:700px;top:1162px;width:290px"><b>TIER 3</b><span>Raised,<br>no board found</span><strong data-k="tier3">0</strong></div>
+  <div class="pill" id="p4" data-step="4" style="left:330px;top:1290px;width:420px">Tier 1 is the list</div>
+
+  <div class="banner" data-step="5" style="top:1394px"><i>5</i>Verify, then write from the record</div>
+  <div class="card" id="c5" data-step="5" style="left:560px;top:1382px;width:430px">
+    <div class="ch"><b>Open both links</b><span>THEN WRITE</span></div>
+    <div class="cb"><div class="desc">Confirm the raise and the role. The message opens with their raise date and their open role.</div>
+      <div class="with"><span>WITH</span><div class="tools"><span class="tool"><em>SV</em>skeptic-verifier</span><span class="tool"><em>PV</em>pvp-writer</span></div></div></div>
+  </div>
+  <div class="pill end" id="pEnd" data-step="5" style="left:220px;top:1586px;width:640px">A message about their raise and their hire</div>
+
+  <div class="stack" data-step="6">
+    <div class="lbl">THE STACK · $0 · NO API KEYS</div>
+    <div class="tools">
+      <span class="tool"><em>SE</em>SEC EDGAR</span><span class="tool"><em>GH</em>Greenhouse API</span><span class="tool"><em>LV</em>Lever API</span>
+      <span class="tool"><em>AS</em>Ashby API</span><span class="tool"><em>PY</em>Python stdlib</span><span class="tool"><em>CC</em>Claude Code</span>
+    </div>
+  </div>
+  <div class="foot"><span>ASSHVIN KUMAR · GTM SIGNAL PLAYS</span><b>Counted from a real run</b></div>
+
+  <canvas id="fx" width="1080" height="1920"></canvas>
+  <div id="brk"></div>
+</div>
+
+<!-- Source of truth: plays/01-fresh-capital-open-role/out/<date>/summary.json -->
+<script id="data" type="application/json">
+{ "window": "2026-10-31 TO 11-06", "form_d_new": 844, "operating": 293, "tech": 84, "with_board": 10, "tier1": 4, "tier2": 6, "tier3": 74 }
+</script>
+<script>
+document.fonts.ready.then(() => {
+  const DATA = JSON.parse(document.getElementById('data').textContent);
+  const TOTAL = 13, FADE_START = 12.3, REVEAL = 0.6;
+  const STEP_AT = { 1: 0.3, 2: 1.3, 3: 2.2, 4: 3.1, 5: 4.1, 6: 4.8 };
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const easeOut = (p) => 1 - Math.pow(1 - p, 3);
+  const $ = (id) => document.getElementById(id);
+  if (new URLSearchParams(location.search).get('theme') === 'dark') document.body.classList.add('dark');
+  const css = getComputedStyle(document.body);
+  const COLOR = { wire: css.getPropertyValue('--wire').trim(), pkt: css.getPropertyValue('--pkt').trim(),
+                  hot: css.getPropertyValue('--pkt-hot').trim() };
+  if (DATA.window) $('sub').textContent = 'TESTED ON SEC FILINGS ' + DATA.window + ' · NO API KEYS';
+
+  const WIRES = [
+    [2, 'cA', 'c2'], [2, 'cB', 'c2'], [3, 'c2', 'c3'],
+    [4, 'c3', 't1'], [4, 'c3', 't2'], [4, 'c3', 't3'],
+    [4, 't1', 'p4'], [5, 'p4', 'c5'], [5, 'c5', 'pEnd'],
+  ];
+  const svg = $('wires'), NS = 'http://www.w3.org/2000/svg';
+  const mk = (d) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('d', d); p.setAttribute('fill', 'none');
+    p.setAttribute('stroke', COLOR.wire); p.setAttribute('stroke-width', '1.5'); svg.appendChild(p); return p; };
+  const wires = WIRES.map(([step, f, t]) => {
+    const a = $(f), b = $(t);
+    const fx = a.offsetLeft + a.offsetWidth / 2, fy = a.offsetTop + a.offsetHeight;
+    const tx = b.offsetLeft + b.offsetWidth / 2, ty = b.offsetTop, my = ty - 14;
+    const pts = fx === tx ? [[fx, fy], [tx, ty]] : [[fx, fy], [fx, my], [tx, my], [tx, ty]];
+    const path = mk(pts.map((p, i) => (i ? 'L' : 'M') + p[0] + ' ' + p[1]).join(' '));
+    const head = mk(`M${tx - 5} ${ty - 7} L${tx} ${ty} L${tx + 5} ${ty - 7}`);
+    let len = 0; const segs = [];
+    for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      segs.push({ a: pts[i - 1], b: pts[i], l, s: len }); len += l; }
+    path.style.strokeDasharray = len;
+    return { step, path, head, segs, len };
+  });
+  const pointAt = (w, d) => { for (const s of w.segs) if (d <= s.s + s.l) { const p = (d - s.s) / s.l;
+    return [s.a[0] + (s.b[0] - s.a[0]) * p, s.a[1] + (s.b[1] - s.a[1]) * p]; } return w.segs[w.segs.length - 1].b; };
+
+  const els = [...document.querySelectorAll('[data-step]')];
+  const heads = [...document.querySelectorAll('.kicker, h1, .sub')];
+  const nums = [...document.querySelectorAll('[data-k]')].map((el) => {
+    const s = el.closest('[data-step]'); return { el, v: DATA[el.dataset.k] || 0, step: s ? +s.dataset.step : 1 }; });
+  const ctx = $('fx').getContext('2d');
+
+  const brkBox = document.createElement('div'); brkBox.style.position = 'absolute';
+  ['top:-7px;left:-7px;border-width:2px 0 0 2px', 'top:-7px;right:-7px;border-width:2px 2px 0 0',
+   'bottom:-7px;left:-7px;border-width:0 0 2px 2px', 'bottom:-7px;right:-7px;border-width:0 2px 2px 0']
+    .forEach((c) => { const b = document.createElement('div'); b.className = 'bracket'; b.style.cssText += c; brkBox.appendChild(b); });
+  $('brk').appendChild(brkBox);
+  const focus = ['cA', 'cB', 'c2', 'c3', 't1', 'c5', 'pEnd'].map($);
+  const FOCUS_START = 5.2, FOCUS_EACH = 0.95;
+
+  window.renderAt = (t) => {
+    t = ((t % TOTAL) + TOTAL) % TOTAL;
+    const fade = 1 - clamp((t - FADE_START) / (TOTAL - FADE_START));
+    for (const el of heads) { const p = easeOut(clamp(t / 0.5));
+      el.style.opacity = p * (0.2 + 0.8 * fade); el.style.transform = `translateY(${(1 - p) * 10}px)`; }
+    for (const el of els) {
+      const p = easeOut(clamp((t - STEP_AT[el.dataset.step]) / REVEAL));
+      el.style.clipPath = `inset(-30px ${100 - p * 100}% -30px -30px)`;
+      el.style.opacity = (p > 0 ? 1 : 0) * fade; el.style.transform = `translateY(${(1 - p) * 8}px)`;
+    }
+    for (const n of nums) {  // real values count up after their step appears
+      const p = easeOut(clamp((t - STEP_AT[n.step] - 0.2) / 1.0));
+      n.el.textContent = Math.round(n.v * p).toLocaleString('en-US');
+    }
+    for (const w of wires) {
+      const p = easeOut(clamp((t - STEP_AT[w.step] + 0.15) / 0.55));
+      w.path.style.strokeDashoffset = w.len * (1 - p);
+      w.path.style.opacity = fade; w.head.style.opacity = (p > 0.98 ? 1 : 0) * fade;
+    }
+    ctx.clearRect(0, 0, 1080, 1920);
+    const SPEED = 170, GAP = 120;
+    wires.forEach((w, i) => {
+      const live = t - STEP_AT[w.step] - 0.7; if (live <= 0) return;
+      const lead = live * SPEED, offset = (i * 37) % GAP;
+      const hot = i >= 6;  // after scoring, packets turn amber: Tier 1 accounts
+      for (let d = (lead + offset) % GAP; d < w.len && d <= lead; d += GAP) {
+        const [x, y] = pointAt(w, d); const edge = clamp(d / 18) * clamp((w.len - d) / 18);
+        ctx.fillStyle = hot ? COLOR.hot : COLOR.pkt;
+        ctx.globalAlpha = 0.16 * edge * fade; ctx.fillRect(x - 8, y - 8, 16, 16);
+        ctx.globalAlpha = edge * fade; ctx.fillRect(x - 3, y - 3, 6, 6);
+      }
+    });
+    ctx.globalAlpha = 1;
+    if (t > FOCUS_START) {
+      const n = (t - FOCUS_START) / FOCUS_EACH, el = focus[Math.floor(n) % focus.length], local = n % 1;
+      const pad = 12 - 7 * easeOut(clamp(local / 0.35));
+      Object.assign(brkBox.style, { left: el.offsetLeft - pad + 'px', top: el.offsetTop - pad + 'px',
+        width: el.offsetWidth + pad * 2 + 'px', height: el.offsetHeight + pad * 2 + 'px' });
+      brkBox.style.opacity = clamp(local / 0.15) * fade;
+    } else brkBox.style.opacity = 0;
+  };
+
+  window.renderAt(0);
+  if (!new URLSearchParams(location.search).has('capture')) {
+    const start = performance.now();
+    const loop = (now) => { window.renderAt((now - start) / 1000); requestAnimationFrame(loop); };
+    requestAnimationFrame(loop);
+  }
+});
+</script>
+</body>
+</html>

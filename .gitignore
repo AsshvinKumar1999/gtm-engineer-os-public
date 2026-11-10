@@ -1,0 +1,9 @@
+.DS_Store
+.pytest_cache/
+__pycache__/
+.venv/
+
+# play run outputs (company-level data, regenerate with run.py)
+plays/*/out/
+# large public source files (re-download with the play scripts)
+plays/*/data/
