@@ -7,7 +7,7 @@ My working GTM engineering system: Claude Code skills, reviewer agents, scripts 
 | Path | What it is |
 |---|---|
 | `METHOD.md` | The method: situations not filters, compelled records, two signals, code counts and humans approve. |
-| `skills/` | 13 Claude Code skills: asymmetry-engine, pain-segment-finder, pvp-writer, dossier-builder, win-loss-rewind, cheap-right-answers, evidence-pack-judge, editorial-gate, data-source-hunter, lever-test, monetization-ladder, animated-infographic, linkedin-post. |
+| `skills/` | 14 Claude Code skills: asymmetry-engine, pain-segment-finder, pvp-writer, dossier-builder, win-loss-rewind, cheap-right-answers, evidence-pack-judge, editorial-gate, data-source-hunter, non-us-data-map, lever-test, monetization-ladder, animated-infographic, linkedin-post. |
 | `agents/` | Reviewer agents: skeptic-verifier, buyer-critic, blind-planner. |
 | `plays/` | Runnable plays. `01-fresh-capital-open-role` (SEC Form D × job boards) and `06-fresh-capital-visa-sponsor` (Form D × DOL H-1B data × job boards). Standard-library Python, no API keys. |
 | `scripts/` | `lint_ai_tells.py` (writing lint), `cost_guard.py` (spend tiers + ledger), `check_claims.py` (checks numbers in a draft against run files), `lever_test.py` (Wilson intervals, the 2×SE lever test, the tie band), `verify_sources.py` (data-source lineage gate before you spend), `linkedin_format.py` (LinkedIn bold + length check), `render_animation.py` (HTML → MP4/GIF). |
